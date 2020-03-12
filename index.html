@@ -1,0 +1,46 @@
+<!DOCTYPE html><html><head></head>
+<body>
+<div id="editor-wrapper"><h2>Put Words Here</h2><div id="editor"></div></div>
+
+<div id="erroneous-wrapper">
+<div id="erroneous-mask"></div>
+<div id="erroneous-wrapper-inner"><h2>You Used Some Less Simple Words</h2>
+<div id="erroneous"></div></div></div>
+
+<script src="./words.js?cache=6f3c4ed1c04dc0b6c30d46e2ea451210"></script>
+
+<script src="./ace/src-min/ace.js" type="text/javascript" charset="utf-8"></script>
+
+<script>var editor = ace.edit("editor");
+var session = editor.getSession();
+session.setMode("ace/mode/upwriter");
+session.setUseWrapMode(true);
+session.setTabSize(0);
+// everyone wants Ctrl-L and Cmd-L to go to the address bar
+editor.commands.removeCommand('gotoline');
+editor.focus();
+
+var editorElement = document.getElementById('editor');
+var erroneousWrapper = document.getElementById('erroneous-wrapper');
+var erroneous = document.getElementById('erroneous');
+
+erroneous.addEventListener('click', function(e) {
+  if (e.target.tagName.toLowerCase() === "a") {
+    editor.find(e.target.innerText);
+    editor.findAll(e.target.innerText);
+    editor.focus();
+  }
+});
+
+session.on('changeMode', function() {
+  session.getMode().onRecalculateAllowed(editor, function(d) {
+    erroneous.innerHTML = d.map(function(word) {
+      return '<a>' + word + '</a>';
+    }).join('');
+    erroneousWrapper.classList[d.length > 0 ? 'add' : 'remove']('invalid');
+    editorElement.style.bottom = erroneous.clientHeight + 'px';
+  });
+});
+</script>
+</body>
+</html>
